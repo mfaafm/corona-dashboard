@@ -1,0 +1,16 @@
+name: ncov
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python>=3.7
+  - pandas>=1.0
+  - gunicorn>=20.0
+  - numpy
+  - pip
+  - pip:
+      - dasher>=0.1.3
+      - dash
+      - dash-bootstrap-components>=0.6.3
+      - dash-core-components
+      - dash-html-components
