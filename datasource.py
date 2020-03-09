@@ -9,7 +9,7 @@ class CSSEData(object):
     )
     meta_cols = ["Province/State", "Country/Region", "Lat", "Long", "Record"]
 
-    def __init__(self, refresh_rate=15):
+    def __init__(self, refresh_rate=30):
         self.refresh_rate = refresh_rate
         self.data_sources = {
             r: self.url_pattern.format(r) for r in ["Confirmed", "Deaths", "Recovered"]
@@ -43,8 +43,9 @@ class CSSEData(object):
 
     def get_country_data(self, country="Germany"):
         df = self.get_df()
-        df_country = df[df["Country/Region"] == country]
-        return df_country.groupby("Record")[self.data_cols].sum()
+        df_filt = df[df["Country/Region"] == country]
+        df_country = df_filt.groupby("Record")[self.data_cols].sum()
+        return df_country.loc[:, (df_country != 0).any(axis=0)]
 
     def get_country_total(self, record="Confirmed"):
         df = self.get_df()

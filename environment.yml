@@ -1,4 +1,4 @@
-name: ncov
+name: corona
 channels:
   - defaults
   - conda-forge
