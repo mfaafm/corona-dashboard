@@ -1,3 +1,4 @@
+import dash_bootstrap_components as dbc
 from dasher import Dasher
 from dash.dependencies import Input, Output
 from datasource import CSSEData
@@ -54,6 +55,18 @@ def refresh_countries_timeline(dependency):
 def refresh_countries_forecast(dependency):
     return refresh_countries()
 
+
+# add link to source code in navbar
+navbar = app.api.layout.navbar
+navbar.children.insert(
+    0,
+    dbc.NavLink(
+        "source code",
+        className="small",
+        href="https://github.com/mfaafm/corona-dashboard",
+        external_link=True,
+    ),
+)
 
 wsgi = app.get_flask_server()
 
