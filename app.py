@@ -55,5 +55,7 @@ def refresh_countries_forecast(dependency):
     return refresh_countries()
 
 
+wsgi = app.get_flask_server()
+
 if __name__ == "__main__":
     app.run_server(debug=True)
