@@ -17,7 +17,7 @@ app.callback(
     _labels=["Country", "Mode", "y-Axis"],
     _layout_kw=dict(widget_cols=3),
     country=data.get_country_ranking(),
-    mode=["cumulative", "increase", "growth factor"],
+    mode=["total", "difference", "growth factor"],
     yaxis=["linear", "log"],
 )(lambda *args: plot_country_timeline(data, *args))
 
