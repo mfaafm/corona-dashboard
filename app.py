@@ -56,17 +56,24 @@ def refresh_countries_forecast(dependency):
     return refresh_countries()
 
 
-# add link to source code in navbar
-navbar = app.api.layout.navbar
-navbar.children.insert(
-    0,
-    dbc.NavLink(
-        "source code",
-        className="small",
-        href="https://github.com/mfaafm/corona-dashboard",
-        external_link=True,
-    ),
+code_link = dbc.NavLink(
+    "source code",
+    className="small",
+    href="https://github.com/mfaafm/corona-dashboard",
+    external_link=True,
 )
+
+data_link = dbc.NavLink(
+    "data source (JHU CSSE)",
+    className="small",
+    href="https://github.com/CSSEGISandData/COVID-19",
+    external_link=True,
+)
+
+# add links to source code and data into navbar
+navbar = app.api.layout.navbar
+navbar.children.insert(0, code_link)
+navbar.children.insert(1, data_link)
 
 wsgi = app.get_flask_server()
 
