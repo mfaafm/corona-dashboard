@@ -8,7 +8,7 @@ def plot_country_timeline(data, country, mode, yaxis):
 
     if mode == "difference":
         df = df.diff(axis=1)
-        barmode = "stack"
+        barmode = "relative"
     elif mode == "growth factor":
         df = df / df.shift(1, axis=1)
         barmode = "group"
