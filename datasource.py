@@ -7,10 +7,9 @@ class CSSEData(object):
         "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/"
         "csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-{}.csv"
     )
-    meta_cols = ["Province/State", "Country/Region", "Lat", "Long", "Record"]
 
     def __init__(self, refresh_rate=30):
-        self.refresh_rate = refresh_rate
+        self.refresh_rate = timedelta(minutes=refresh_rate)
         self.data_sources = {
             r: self.url_pattern.format(r) for r in ["Confirmed", "Deaths", "Recovered"]
         }
@@ -22,38 +21,49 @@ class CSSEData(object):
             for record, data in self.data_sources.items()
         ]
         df = pd.concat(df_list, ignore_index=True)
+        return df
 
+    def auto_refresh(self, force=False):
+        if force or (datetime.utcnow() - self._ts > self.refresh_rate):
+            df = self.load_data()
+            self._df = self.preprocess(df)
+            self._ts = datetime.utcnow()
+            self.data_cols = self._df.columns.drop("Record").to_list()
+
+    def preprocess(self, df):
+        df.drop(columns=["Province/State", "Lat", "Long"], inplace=True)
         df.rename(
-            columns=lambda c: pd.to_datetime(c) if c not in self.meta_cols else c,
+            columns=lambda c: pd.to_datetime(c)
+            if c not in ["Country/Region", "Record"]
+            else c,
             inplace=True,
         )
-        return df
+        df_country = df.groupby(["Country/Region", "Record"]).sum()
+        df_country.reset_index(level=1, drop=False, inplace=True)
+
+        # calculate active cases
+        data_cols = df_country.columns.drop("Record")
+        df_confirmed = df_country[df_country["Record"] == "Confirmed"][data_cols]
+        df_recovered = df_country[df_country["Record"] == "Recovered"][data_cols]
+        df_dead = df_country[df_country["Record"] == "Deaths"][data_cols]
+        df_active = df_confirmed - df_recovered - df_dead
+        df_active["Record"] = "Active"
+        return pd.concat([df_country, df_active])
 
     def get_df(self):
         self.auto_refresh()
         return self._df
 
-    def auto_refresh(self, force=False):
-        if force or (
-            datetime.utcnow() - self.timestamp > timedelta(minutes=self.refresh_rate)
-        ):
-            self._df = self.load_data()
-            self.data_cols = self._df.columns.drop(self.meta_cols).to_list()
-            self.timestamp = datetime.utcnow()
-
     def get_country_data(self, country="Germany"):
         df = self.get_df()
-        df_filt = df[df["Country/Region"] == country]
-        df_country = df_filt.groupby("Record")[self.data_cols].sum()
+        df_country = df.loc[country].reset_index(drop=True).set_index("Record")
         return df_country.loc[:, (df_country != 0).any(axis=0)]
 
-    def get_country_total(self, record="Confirmed"):
+    def get_country_total(self, record="Active"):
         df = self.get_df()
         df_record = df[df["Record"] == record]
-        df_country = df_record.groupby("Country/Region")[self.data_cols].sum()
-        df_total = df_country.iloc[:, -1]
-        return df_total.sort_values(ascending=False)
+        return df_record.iloc[:, -1].sort_values(ascending=False)
 
     def get_country_ranking(self):
-        country_total = self.get_country_total()
+        country_total = self.get_country_total(record="Active")
         return country_total.index.to_list()

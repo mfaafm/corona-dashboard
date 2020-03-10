@@ -3,7 +3,8 @@ import dash_core_components as dcc
 
 
 def plot_country_timeline(data, country, mode, yaxis):
-    df = data.get_country_data(country)
+    show_cols = ["Active", "Deaths", "Recovered"]
+    df = data.get_country_data(country).loc[show_cols]
 
     if mode == "difference":
         df = df.diff(axis=1)

@@ -12,7 +12,7 @@ def avg_growth_rate(x, days=3):
 
 
 def plot_forecast(data, country, num_days):
-    confirmed = data.get_country_data(country).loc["Confirmed"]
+    confirmed = data.get_country_data(country).loc["Active"]
 
     if confirmed.shape[0] <= 3:
         return html.H4("Not enough data for forecast.")
@@ -24,7 +24,7 @@ def plot_forecast(data, country, num_days):
     forecast = np.round(confirmed[-1] * growth_rate ** np.arange(1, num_days))
 
     fig_data = [
-        go.Bar(x=confirmed.index[-7:], y=confirmed[-7:], name="Confirmed"),
+        go.Bar(x=confirmed.index[-7:], y=confirmed[-7:], name="Active"),
         go.Bar(x=time_idx, y=forecast, name="Forecast"),
     ]
 
@@ -34,7 +34,7 @@ def plot_forecast(data, country, num_days):
         dbc.Row(
             [
                 dbc.Col(
-                    "Exponential forecast based on the number of cases "
+                    "Exponential forecast based on the number of active cases "
                     f"as of {confirmed.index[-1].strftime('%Y/%m/%d')} using the median "
                     f"growth rate of the last 3 days: {growth_rate:.3f}.",
                     width={"size": 10, "offset": 1},
