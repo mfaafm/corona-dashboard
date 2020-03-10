@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 
-def avg_growth_rate(x, days=5):
+def avg_growth_rate(x, days=3):
     growth_rate = x / x.shift(1)
     return np.median(growth_rate[-days:])
 
@@ -14,7 +14,7 @@ def avg_growth_rate(x, days=5):
 def plot_forecast(data, country, num_days):
     confirmed = data.get_country_data(country).loc["Confirmed"]
 
-    if confirmed.shape[0] <= 5:
+    if confirmed.shape[0] <= 3:
         return html.H4("Not enough data for forecast.")
 
     growth_rate = avg_growth_rate(confirmed)
@@ -36,7 +36,7 @@ def plot_forecast(data, country, num_days):
                 dbc.Col(
                     "Exponential forecast based on the number of cases "
                     f"as of {confirmed.index[-1].strftime('%Y/%m/%d')} using the median "
-                    f"growth rate of the last 5 days: {growth_rate:.3f}.",
+                    f"growth rate of the last 3 days: {growth_rate:.3f}.",
                     width={"size": 10, "offset": 1},
                 )
             ]
