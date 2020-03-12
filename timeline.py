@@ -10,7 +10,12 @@ def _get_growth_rate_figure(df):
 
     raw_data = [
         go.Scatter(
-            x=val.index, y=val, mode="markers", marker=dict(color=color), name=name
+            x=val.index,
+            y=val,
+            mode="markers",
+            marker=dict(color=color),
+            name=name,
+            visible=True if name == "Active" else "legendonly",
         )
         for (name, val), color in zip(df.iterrows(), PLOTLY_COLORS)
         if val.any()
@@ -23,6 +28,7 @@ def _get_growth_rate_figure(df):
             line=dict(color=color),
             name=f"{name} (3-day median)",
             hoverinfo="skip",
+            visible=True if name == "Active" else "legendonly",
         )
         for (name, val), color in zip(df_smooth.iterrows(), PLOTLY_COLORS)
         if val.any()
