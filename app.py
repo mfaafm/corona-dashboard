@@ -12,19 +12,33 @@ data = CSSEData(refresh_rate=REFRESH_RATE)
 
 app = Dasher(__name__, title="SARS-CoV-2 dashboard")
 
+warning_msg = (
+    "Caution: data for 2020/03/12 is not correct, since there are problems "
+    "with the last update of the data source repository. "
+    "Several issues have been opened already. "
+    "The dashboard will automatically update latest 30 minutes after the data is corrected."
+)
+
+# make Germany the default country
+countries = data.get_country_ranking()
+countries.remove("Germany")
+countries.insert(0, "Germany")
+
 app.callback(
     "Timeline",
+    warning_msg,
     _labels=["Country", "Mode", "y-Axis"],
     _layout_kw=dict(widget_cols=3),
-    country=data.get_country_ranking(),
+    country=countries,
     mode=["total", "difference", "growth factor"],
     yaxis=["linear", "log"],
 )(lambda *args: plot_country_timeline(data, *args))
 
 app.callback(
     "Forecast",
+    warning_msg,
     _labels=["Country", "Forecast horizon (days)"],
-    country=data.get_country_ranking(),
+    country=countries,
     num_days=(1, 7, 1),
 )(lambda *args: plot_forecast(data, *args))
 
@@ -32,7 +46,6 @@ app.callback(
 def refresh_countries():
     countries = data.get_country_ranking()
     return [{"label": c, "value": c} for c in countries]
-
 
 # get country input widgets for timeline & forecast tab
 country_input_timeline = app.callbacks["timeline"].widgets[0]
