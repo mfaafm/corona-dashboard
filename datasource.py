@@ -23,13 +23,6 @@ class CSSEData(object):
         df = pd.concat(df_list, ignore_index=True)
         return df
 
-    def auto_refresh(self, force=False):
-        if force or (datetime.utcnow() - self._ts > self.refresh_rate):
-            df = self.load_data()
-            self._df = self.preprocess(df)
-            self._ts = datetime.utcnow()
-            self.data_cols = self._df.columns.drop("Record").to_list()
-
     def preprocess(self, df):
         df.drop(columns=["Province/State", "Lat", "Long"], inplace=True)
         df.rename(
@@ -49,6 +42,13 @@ class CSSEData(object):
         df_active = df_confirmed - df_recovered - df_dead
         df_active["Record"] = "Active"
         return pd.concat([df_country, df_active])
+
+    def auto_refresh(self, force=False):
+        if force or (datetime.utcnow() - self._ts > self.refresh_rate):
+            df = self.load_data()
+            self._df = self.preprocess(df)
+            self._ts = datetime.utcnow()
+            self.data_cols = self._df.columns.drop("Record").to_list()
 
     def get_df(self):
         self.auto_refresh()

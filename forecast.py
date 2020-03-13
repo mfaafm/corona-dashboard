@@ -11,7 +11,7 @@ def avg_growth_rate(x, days=3):
     return np.median(growth_rate[-days:])
 
 
-def plot_forecast(data, country, num_days):
+def plot_forecast(data, country, num_days=3):
     confirmed = data.get_country_data(country).loc["Active"]
 
     if confirmed.shape[0] <= 3:
@@ -21,7 +21,7 @@ def plot_forecast(data, country, num_days):
     time_idx = pd.date_range(
         start=confirmed.index[-1] + pd.Timedelta(days=1), periods=num_days, freq="d"
     )
-    forecast = np.round(confirmed[-1] * growth_rate ** np.arange(1, num_days))
+    forecast = np.round(confirmed[-1] * growth_rate ** np.arange(1, num_days+1))
 
     fig_data = [
         go.Bar(x=confirmed.index[-7:], y=confirmed[-7:], name="Active"),

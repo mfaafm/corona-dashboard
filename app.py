@@ -25,7 +25,7 @@ app.callback(
     "Forecast",
     _labels=["Country", "Forecast horizon (days)"],
     country=data.get_country_ranking(),
-    num_days=(1, 14, 1),
+    num_days=(1, 7, 1),
 )(lambda *args: plot_forecast(data, *args))
 
 
