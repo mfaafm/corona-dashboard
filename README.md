@@ -1,5 +1,7 @@
 # nCov dashboard
-This is a simple dashboard, which allows you to visualize the timeline of the SARS-CoV-2 infections by country.
+This is the source code repository of the dashboard hosted under https://corona-dashboard.herokuapp.com/ .
+
+It is a simple dashboard, which allows you to visualize the timeline of the SARS-CoV-2 infections by country.
 You can switch between cumulative cases, daily differences and the daily growth rate.
 
 Also, it contains a very simple exponential forecast based on the median growth rate of the last days.
