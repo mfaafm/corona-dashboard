@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 
-class CSSEData(object):
+class JHUData(object):
     url_pattern = (
         "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/"
         "csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-{}.csv"

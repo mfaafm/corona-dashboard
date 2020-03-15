@@ -1,14 +1,14 @@
 import dash_bootstrap_components as dbc
 from dasher import Dasher
 from dash.dependencies import Input, Output
-from datasource import CSSEData
-from timeline import plot_country_timeline
-from forecast import plot_forecast
+from datasource.jhu import JHUData
+from dashboard.timeline import plot_country_timeline
+from dashboard.forecast import plot_forecast
 
 # data refresh rate in minutes
 REFRESH_RATE = 30
 
-data = CSSEData(refresh_rate=REFRESH_RATE)
+data = JHUData(refresh_rate=REFRESH_RATE)
 
 app = Dasher(__name__, title="SARS-CoV-2 dashboard")
 
