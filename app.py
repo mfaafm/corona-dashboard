@@ -19,12 +19,12 @@ countries = data.get_country_ranking()
 countries.remove("Deutschland")
 countries.insert(0, "Deutschland")
 
-app.callback(
-    "Current",
-    _labels=["Rank countries by", "Number of countries to show"],
-    rank=data.records,
-    n=(1, 20, 1),
-)(lambda *args: plot_current(data, *args))
+# app.callback(
+#     "Current",
+#     _labels=["Rank countries by", "Number of countries to show"],
+#     rank=data.records,
+#     n=(1, 20, 1),
+# )(lambda *args: plot_current(data, *args))
 
 app.callback(
     "Country Timeline",

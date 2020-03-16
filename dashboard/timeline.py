@@ -56,6 +56,6 @@ def plot_country_timeline(data, country, mode, yaxis):
             for name, val in df.groupby("record")
         ]
 
-    layout = go.Layout(barmode=barmode, yaxis=dict(type=yaxis))
-    fig = go.Figure(data=fig_data, layout=layout)
+    layout = dict(barmode=barmode, yaxis=dict(type=yaxis))
+    fig = dict(data=fig_data, layout=layout)
     return [dcc.Graph(figure=fig)]

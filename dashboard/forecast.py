@@ -32,7 +32,7 @@ def plot_forecast(data, country, num_days=3):
         go.Bar(x=time_idx, y=forecast, name="forecast", marker_color=colors[1]),
     ]
 
-    fig = go.Figure(data=fig_data)
+    fig = dict(data=fig_data)
     graph = dcc.Graph(figure=fig)
     return [
         dbc.Row(

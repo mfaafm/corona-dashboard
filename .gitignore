@@ -219,3 +219,6 @@ dmypy.json
 .history
 
 # End of https://www.gitignore.io/api/python,pycharm+all,jupyternotebooks,visualstudiocode
+
+# Don't add notebooks folder
+notebooks/
