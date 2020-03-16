@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -9,6 +10,7 @@ class BMPData(object):
     )
 
     def __init__(self, timeout=30):
+        self.logger = logging.getLogger(__name__)
         self.timeout = timedelta(minutes=timeout)
         self.records = ["confirmed", "active", "recovered", "deaths"]
         self.datasets = [
@@ -55,6 +57,7 @@ class BMPData(object):
 
     def _maybe_update(self, force=False):
         if force or (datetime.utcnow() - self._ts > self.timeout):
+            self.logger.info("Data update started")
             self._ts = datetime.utcnow()
             self._timeline = self.load_data("timeline")
             self._current = self.load_data("current")
@@ -64,6 +67,7 @@ class BMPData(object):
             self._countries_history = self._get_countries_history()
             self._countries_total = self._get_countries_total()
             self._country_ranking = self._get_country_ranking()
+            self.logger.info("Data update finished")
 
     def _get_federal_countries(self):
         df = self._history
