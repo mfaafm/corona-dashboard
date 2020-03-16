@@ -9,7 +9,7 @@ Also, it contains a very simple exponential forecast based on the median growth 
 *Disclaimer: this project was created out of curiosity. These forecasts are provided without any guarantee!*
 
 ## Data source
-It uses the fantastic [data repository](https://github.com/CSSEGISandData/COVID-19) by Johns Hopkins CSSE.
+https://interaktiv.morgenpost.de/corona-virus-karte-infektionen-deutschland-weltweit/
 
 ## License
 Free software, [MIT License](https://raw.githubusercontent.com/mfaafm/ncov/master/LICENSE).

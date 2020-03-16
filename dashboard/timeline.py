@@ -1,61 +1,61 @@
 import plotly.graph_objects as go
 import dash_core_components as dcc
-
-PLOTLY_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c"]
+from . import color_map
 
 
 def _get_growth_rate_figure(df):
-    df = df / df.shift(1, axis=1)
-    df_smooth = df.rolling(3, axis=1).median()
+    df = df.sort_values("date")
+    df["growth factor smooth"] = (
+        df.groupby("record")["growth factor"]
+        .rolling(3)
+        .median()
+        .droplevel(level="record")
+    )
 
     raw_data = [
         go.Scatter(
-            x=val.index,
-            y=val,
+            x=val["date"],
+            y=val["growth factor"],
             mode="markers",
-            marker=dict(color=color),
+            marker=dict(color=color_map[name]),
             name=name,
-            visible=True if name == "Active" else "legendonly",
+            visible=True if name == "active" else "legendonly",
         )
-        for (name, val), color in zip(df.iterrows(), PLOTLY_COLORS)
-        if val.any()
+        for name, val in df.groupby("record")
     ]
     smooth_data = [
         go.Scatter(
-            x=val.index,
-            y=val,
+            x=val["date"],
+            y=val["growth factor smooth"],
             mode="lines",
-            line=dict(color=color),
+            line=dict(color=color_map[name]),
             name=f"{name} (3-day median)",
             hoverinfo="skip",
-            visible=True if name == "Active" else "legendonly",
+            visible=True if name == "active" else "legendonly",
         )
-        for (name, val), color in zip(df_smooth.iterrows(), PLOTLY_COLORS)
-        if val.any()
+        for name, val in df.groupby("record")
     ]
     return raw_data + smooth_data
 
 
 def plot_country_timeline(data, country, mode, yaxis):
-    show_cols = ["Active", "Deaths", "Recovered"]
-    df = data.get_country_data(country).loc[show_cols]
+    df = data.get_country_history(country)
+    df = df[df["record"] != "confirmed"]
 
     if mode == "growth factor":
         fig_data = _get_growth_rate_figure(df)
         barmode = None
     else:
         if mode == "difference":
-            df = df.diff(axis=1)
             barmode = "relative"
         else:
             barmode = "stack"
 
         fig_data = [
-            go.Bar(x=val.index, y=val, name=name)
-            for name, val in df.iterrows()
-            if val.any()
+            go.Bar(x=val["date"], y=val[mode], name=name, marker_color=color_map[name])
+            for name, val in df.groupby("record")
         ]
 
-    layout = dict(barmode=barmode, yaxis=dict(type=yaxis))
-    fig = dict(data=fig_data, layout=layout)
+    layout = go.Layout(barmode=barmode, yaxis=dict(type=yaxis))
+    fig = go.Figure(data=fig_data, layout=layout)
     return [dcc.Graph(figure=fig)]

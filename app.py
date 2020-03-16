@@ -1,25 +1,33 @@
 import dash_bootstrap_components as dbc
 from dasher import Dasher
 from dash.dependencies import Input, Output
-from datasource.jhu import JHUData
+from datasource.bmp import BMPData
+from dashboard.current import plot_current
 from dashboard.timeline import plot_country_timeline
 from dashboard.forecast import plot_forecast
 
 # data refresh rate in minutes
 REFRESH_RATE = 30
 
-data = JHUData(refresh_rate=REFRESH_RATE)
+data = BMPData(timeout=REFRESH_RATE)
 
 app = Dasher(__name__, title="SARS-CoV-2 dashboard")
 
 
-# make Germany the default country
+# make Deutschland the default country
 countries = data.get_country_ranking()
-countries.remove("Germany")
-countries.insert(0, "Germany")
+countries.remove("Deutschland")
+countries.insert(0, "Deutschland")
 
 app.callback(
-    "Timeline",
+    "Current",
+    _labels=["Rank countries by", "Number of countries to show"],
+    rank=data.records,
+    n=(1, 20, 1),
+)(lambda *args: plot_current(data, *args))
+
+app.callback(
+    "Country Timeline",
     _labels=["Country", "Mode", "y-Axis"],
     _layout_kw=dict(widget_cols=3),
     country=countries,
@@ -28,7 +36,7 @@ app.callback(
 )(lambda *args: plot_country_timeline(data, *args))
 
 app.callback(
-    "Forecast",
+    "Country Forecast",
     _labels=["Country", "Forecast horizon (days)"],
     country=countries,
     num_days=(1, 7, 1),
@@ -39,9 +47,10 @@ def refresh_countries():
     countries = data.get_country_ranking()
     return [{"label": c, "value": c} for c in countries]
 
+
 # get country input widgets for timeline & forecast tab
-country_input_timeline = app.callbacks["timeline"].widgets[0]
-country_input_forecast = app.callbacks["forecast"].widgets[0]
+country_input_timeline = app.callbacks["country_timeline"].widgets[0]
+country_input_forecast = app.callbacks["country_forecast"].widgets[0]
 
 # hack to refresh the list of countries when selecting a country
 @app.app.callback(
@@ -69,9 +78,9 @@ code_link = dbc.NavLink(
 )
 
 data_link = dbc.NavLink(
-    "data source (JHU CSSE)",
+    "data source (Berliner Morgenpost)",
     className="small",
-    href="https://github.com/CSSEGISandData/COVID-19",
+    href="https://interaktiv.morgenpost.de/corona-virus-karte-infektionen-deutschland-weltweit/",
     external_link=True,
 )
 

@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 import pandas as pd
 import numpy as np
+from . import colors
 
 
 def avg_growth_rate(x, days=3):
@@ -12,30 +13,33 @@ def avg_growth_rate(x, days=3):
 
 
 def plot_forecast(data, country, num_days=3):
-    confirmed = data.get_country_data(country).loc["Active"]
+    active = data.get_country_history(country)
+    active = active[active.record == "active"].drop(columns="record")
 
-    if confirmed.shape[0] <= 3:
+    if active.shape[0] <= 3:
         return html.H4("Not enough data for forecast.")
 
-    growth_rate = avg_growth_rate(confirmed)
+    growth_rate = avg_growth_rate(active["total"])
     time_idx = pd.date_range(
-        start=confirmed.index[-1] + pd.Timedelta(days=1), periods=num_days, freq="d"
+        start=active["date"].iloc[-1] + pd.Timedelta(days=1), periods=num_days, freq="d"
     )
-    forecast = np.round(confirmed[-1] * growth_rate ** np.arange(1, num_days+1))
+
+    x0 = active["total"].iloc[-1]
+    forecast = np.round(x0 * growth_rate ** np.arange(1, num_days + 1))
 
     fig_data = [
-        go.Bar(x=confirmed.index[-7:], y=confirmed[-7:], name="Active"),
-        go.Bar(x=time_idx, y=forecast, name="Forecast"),
+        go.Bar(x=active["date"].iloc[-7:], y=active["total"].iloc[-7:], name="active", marker_color=colors[0]),
+        go.Bar(x=time_idx, y=forecast, name="forecast", marker_color=colors[1]),
     ]
 
-    fig = dict(data=fig_data)
+    fig = go.Figure(data=fig_data)
     graph = dcc.Graph(figure=fig)
     return [
         dbc.Row(
             [
                 dbc.Col(
                     "Exponential forecast based on the number of active cases "
-                    f"as of {confirmed.index[-1].strftime('%Y/%m/%d')} using the median "
+                    f"as of {active['date'].iloc[-1].strftime('%Y/%m/%d')} using the median "
                     f"growth rate of the last 3 days: {growth_rate:.3f}.",
                     width={"size": 10, "offset": 1},
                 )
