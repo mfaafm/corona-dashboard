@@ -106,6 +106,7 @@ class BMPData(object):
             .rename(columns=dict(parent="country"))
         )
         df_ctr = pd.concat((df_globals, df_agg), ignore_index=True)
+        df_ctr = df_ctr.groupby(["country", "date"])[self.records].sum().reset_index()
 
         df = df_ctr.melt(
             id_vars=["country", "date"],
@@ -123,13 +124,18 @@ class BMPData(object):
         df = self._current
         df_parents, df_globals = self._split_parents_and_globals(df)
 
-        df_agg = df_parents.groupby("parent").agg({k: "sum" for k in self.records})
+        agg = {k: "sum" for k in self.records}
+        agg["date"] = "min"
+        df_agg = df_parents.groupby("parent").agg(agg)
         df_agg = df_agg.reset_index().rename(columns={"parent": "country"})
 
         df_total = pd.concat((df_globals, df_agg), ignore_index=True)
-        df_total = df_total.reset_index(drop=True)
+        df_total = (
+            df_total.groupby(["country", "date"])[self.records].sum().reset_index()
+        )
+
         return df_total.melt(
-            id_vars=["country"],
+            id_vars=["country", "date"],
             value_vars=self.records,
             var_name="record",
             value_name="total",
