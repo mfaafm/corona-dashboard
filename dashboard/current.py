@@ -11,11 +11,11 @@ def plot_current(data, sort, ascending):
     df = data.get_dataset("countries_total")
 
     df_pivot = pd.pivot_table(
-        df, index=["country", "date"], columns="record", values="total"
+        df, index=["country", "updated"], columns="record", values="total"
     )
     df_pivot.reset_index(inplace=True)
     df_pivot.sort_values(by=sort, ascending=ascending, inplace=True)
-    df_pivot.rename(columns=dict(date="last update"), inplace=True)
+    df_pivot.rename(columns=dict(updated="last update"), inplace=True)
 
     header = [
         f"<b>{c}</b>"

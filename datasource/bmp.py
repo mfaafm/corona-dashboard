@@ -122,20 +122,24 @@ class BMPData(object):
 
     def _get_countries_total(self):
         df = self._current
+
+        # updated remove date column
+        df["updated"] = pd.to_datetime(df["updated"], unit="ms")
+
         df_parents, df_globals = self._split_parents_and_globals(df)
 
         agg = {k: "sum" for k in self.records}
-        agg["date"] = "min"
+        agg["updated"] = "min"
         df_agg = df_parents.groupby("parent").agg(agg)
         df_agg = df_agg.reset_index().rename(columns={"parent": "country"})
 
         df_total = pd.concat((df_globals, df_agg), ignore_index=True)
         df_total = (
-            df_total.groupby(["country", "date"])[self.records].sum().reset_index()
+            df_total.groupby(["country", "updated"])[self.records].sum().reset_index()
         )
 
         return df_total.melt(
-            id_vars=["country", "date"],
+            id_vars=["country", "updated"],
             value_vars=self.records,
             var_name="record",
             value_name="total",
